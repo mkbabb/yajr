@@ -1,4 +1,4 @@
-# YAJR: `yet another (kind of) jQuery replacement`
+# YAJR: `yet another jQuery replacement`
 
 ## Quick Example
 
@@ -25,11 +25,15 @@ $(".class").setattr({
 });
 ```
 
-**WHAT** more lines?! Yep 🤑
+**WHAT** more lines?! Yep. Oh, and notice the omission of a type hint for the latter. kool 🧊
 
 ## Introit
 
-The rather verbose syntax of `document.querySelector[All]` caused a recent js project of mine to become cluttered and downright unintelligible in places. Additionally, to modifying CSS attributes was a major pain:
+The rather verbose syntax of
+
+    document.querySelector[All]
+
+caused a recent project of mine to become cluttered and downright unintelligible in places. Additionally, the common operation of modifying CSS attributes was a major pain:
 
 ```js
 el.style.$prop = `${value}`;
@@ -37,7 +41,7 @@ el.style.$prop = `${value}`;
 el.style.setProperty(prop, value[prop]);
 ```
 
-Inspired, I spent a few hours creating yet another jQuery replacement, `YAJR`, with its one and only library file [dollar.ts](src/dollar.ts). Why a few hours? The goal of this was to turn something like this:
+Inspired, I spent a few hours creating yet another jQuery replacement, `YAJR`, with its one and only library file [dollar.ts](src/dollar.ts).The goal of this was to turn something like this:
 
 ```js
 Array.from(document.querySelectorAll(".class")).forEach((el) => {
@@ -51,13 +55,15 @@ into this:
 $$(".class").css({ height: "100px" });
 ```
 
-The double dollar `$$` syntax will be explained later.
+_The double dollar `$$` syntax will be explained later._
 
-While also providing the type safety and code completion the former offers through standard TypeScript. The end product does just that, but comes with a few caveats:
+While also providing the type safety and code completion the former offers through standard TypeScript.
+
+The end product does just that, but comes with a few caveats:
 
 ##### Return Type Specialization
 
-The element type returned by `$(".class")` is of type `IDollarElement & DomElement`, where `DomElement` is a union between a few other common DOM element types. In short, if you want to specialize the type returned by a `$` call, you must `&` it with the type `IDollarElement`.
+The element type returned by `$(".class")` is of type `IDollarElement & Element`. In short, if you want to specialize the type returned by a `$` call, you must `&` it with the type `IDollarElement`.
 
 An example ensuring type safety when dealing with an `HTMLCanvas` element:
 
@@ -66,7 +72,7 @@ const canvasEl: HTMLCanvasElement & IDollarElement = $("canvas");
 ...
 ```
 
-To note, this isn't entirely necessary. But if you, like me, want type hinting and safety, it (_for now_) must be done.
+To note, this isn't entirely necessary. But if you, like me, want type hinting and safety, it must be done.
 
 ## What You Get
 
