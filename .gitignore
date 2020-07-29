@@ -1,0 +1,8 @@
+.prettierrc.json
+.vscode/
+.DS_Store
+Thumbs.db
+node_modules/
+my_venv/
+.env
+auth/
