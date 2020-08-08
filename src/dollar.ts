@@ -6,18 +6,18 @@ interface Attributes {
     html?: string;
 }
 
-interface DollarEventTarget {
-    on: (name: string, func: (event: Event) => void) => DollarEventTarget;
-    off: (name: string, func: (event: Event) => void) => DollarEventTarget;
+interface DollarEventTarget<T> {
+    on: (name: string, func: (event: Event) => void) => T & DollarEventTarget<T>;
+    off: (name: string, func: (event: Event) => void) => T & DollarEventTarget<T>;
 }
 
-interface DollarElement extends DollarEventTarget {
-    setattr: (attrs: Attributes) => DollarElement;
+interface DollarElement<T> extends DollarEventTarget<T> {
+    setattr: (attrs: Attributes) => T & DollarElement<T>;
 }
 
-interface DollarHTMLElement extends DollarElement {
-    css: (attrs: NestedAttribute) => DollarHTMLElement;
-    html: (attrs: NestedAttribute) => DollarHTMLElement;
+interface DollarHTMLElement<T> extends DollarElement<T> {
+    css: (attrs: { [s: string]: string }) => T & DollarHTMLElement<T>;
+    html: (attrs: string) => T & DollarHTMLElement<T>;
 }
 
 const on = function (
@@ -139,20 +139,25 @@ const foldFunctions = function (funcs) {
 
 // Function decelerations to aid in proper type hinting.
 
+function $$<T extends HTMLElement>(
+    query: string,
+    context?: Document | Element
+): Array<T & DollarHTMLElement<T>> & DollarHTMLElement<T>;
+
 function $$<T extends Element>(
     query: string,
     context?: Document | Element
-): Array<T & DollarElement> & DollarElement;
+): Array<T & DollarElement<T>> & DollarElement<T>;
 
 function $$<T extends Element>(
     query: NodeListOf<Element>,
     context?: Document | Element
-): Array<T & DollarElement> & DollarElement;
+): Array<T & DollarElement<T>> & DollarElement<T>;
 
 function $$<T extends EventTarget>(
     query: Array<T>,
     context?: Document | Element
-): Array<T & DollarEventTarget> & DollarEventTarget;
+): Array<T & DollarEventTarget<T>> & DollarEventTarget<T>;
 
 /**
  * Like `$`, `$$` is essentially a wrapper for .querySelectorAll, which notoriously returns
@@ -185,15 +190,20 @@ function $$<T>(query: T, context: Document | Element = document) {
     }
 }
 
+function $<T extends HTMLElement>(
+    query: string,
+    context?: Document | Element
+): T & DollarHTMLElement<T>;
+
 function $<T extends Element>(
     query: string,
     context?: Document | Element
-): T & DollarElement;
+): T & DollarElement<T>;
 
 function $<T extends EventTarget>(
     query: T,
     context?: Document | Element
-): T & DollarEventTarget;
+): T & DollarEventTarget<T>;
 
 /**
  * The dollar 💲in dollar.ts. Wrapper around .querySelector in the case of an input
