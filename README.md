@@ -39,7 +39,7 @@ el.style.$prop = `${value}`;
 el.style.setProperty(prop, value[prop]);
 ```
 
-Inspired, I spent a few hours creating yet another jQuery replacement, `YAJR`, with its one and only library file [dollar.ts](src/dollar.ts).The goal of this was to turn something like this:
+Inspired, I spent a few hours creating yet another jQuery replacement, `YAJR`, with its one and only library file [dollar.ts](src/dollar.ts). The goal of this was to turn something like this:
 
 ```ts
 Array.from(document.querySelectorAll(".class")).forEach((el) => {
