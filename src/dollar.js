@@ -1,47 +1,15 @@
-type NestedAttribute = { [s: string]: string } | string;
-
-interface Attributes {
-    [s: string]: NestedAttribute;
-    style?: { [s: string]: string };
-    html?: string;
-}
-
-interface DollarEventTarget {
-    on: (name: string, func: (event: Event) => void) => DollarEventTarget;
-    off: (name: string, func: (event: Event) => void) => DollarEventTarget;
-}
-
-interface DollarElement extends DollarEventTarget {
-    setattr: (attrs: Attributes) => DollarElement;
-}
-
-interface DollarHTMLElement extends DollarElement {
-    css: (attrs: NestedAttribute) => DollarHTMLElement;
-    html: (attrs: NestedAttribute) => DollarHTMLElement;
-}
-
-const on = function (
-    names: string,
-    func: (event: Event) => void,
-    context: EventTarget
-) {
+const on = function (names, func, context) {
     names.split(" ").forEach((event) => {
         context.addEventListener(event, func);
     });
     return context;
 };
-
-const off = function (
-    names: string,
-    func: (event: Event) => void,
-    context: EventTarget
-) {
+const off = function (names, func, context) {
     names.split(" ").forEach((event) => {
         context.removeEventListener(event, func);
     });
     return context;
 };
-
 /**
  * Sets the attributes of a context element based on the `attrs` Attribute object.
  *
@@ -54,78 +22,66 @@ const off = function (
  * @param context context element.
  * @param func function to execute at each [key, value] call.
  */
-const setAttributes = function <T extends Element>(attrs: Attributes, context: T) {
+const setAttributes = function (attrs, context) {
     Object.entries(attrs).forEach(([key, value]) => {
         if (context instanceof HTMLElement) {
             if (key === "html") {
                 context.innerHTML = JSON.stringify(value);
-            } else if (key === "styles" && typeof value === "object") {
+            }
+            else if (key === "styles" && typeof value === "object") {
                 Object.entries(value).forEach(([styleKey, styleValue]) => {
                     context.style.setProperty(styleKey, styleValue);
                 });
             }
         }
-
         if (context instanceof Element) {
             if (value == null) {
                 context.removeAttribute(key);
-            } else if (typeof value === "string") {
+            }
+            else if (typeof value === "string") {
                 context.setAttribute(key, value);
             }
         }
     });
     return context;
 };
-
 const eventTargetFuncs = {
-    on: function (name: string, func: (event: Event) => void) {
+    on: function (name, func) {
         on(name, func, this);
         return this;
     },
-    off: function (name: string, func: (event: Event) => void) {
+    off: function (name, func) {
         off(name, func, this);
         return this;
     }
 };
-
 const elementFuncs = {
-    setattr: function (attrs: Attributes) {
+    setattr: function (attrs) {
         setAttributes(attrs, this);
         return this;
     }
 };
-
 const htmlElementFuncs = {
-    css: function (styles: NestedAttribute) {
-        setAttributes(
-            {
-                styles
-            },
-            this
-        );
+    css: function (styles) {
+        setAttributes({
+            styles
+        }, this);
         return this;
     },
-
-    html: function (s: string) {
-        setAttributes(
-            {
-                html: s
-            },
-            this
-        );
+    html: function (s) {
+        setAttributes({
+            html: s
+        }, this);
         return this;
     }
 };
-
 const dollarFuncs = {
     ...eventTargetFuncs,
     ...elementFuncs,
     ...htmlElementFuncs
 };
-
 const foldFunctions = function (funcs) {
     const folded = {};
-
     Object.keys(funcs).forEach((key) => {
         folded[key] = function (...args) {
             return this.forEach((el) => {
@@ -133,27 +89,8 @@ const foldFunctions = function (funcs) {
             });
         };
     });
-
     return folded;
 };
-
-// Function decelerations to aid in proper type hinting.
-
-function $$<T extends Element>(
-    query: string,
-    context?: Document | Element
-): Array<T & DollarElement> & DollarElement;
-
-function $$<T extends Element>(
-    query: NodeListOf<Element>,
-    context?: Document | Element
-): Array<T & DollarElement> & DollarElement;
-
-function $$<T extends EventTarget>(
-    query: Array<T>,
-    context?: Document | Element
-): Array<T & DollarEventTarget> & DollarEventTarget;
-
 /**
  * Like `$`, `$$` is essentially a wrapper for .querySelectorAll, which notoriously returns
  * a NodeList object.
@@ -169,32 +106,20 @@ function $$<T extends EventTarget>(
  * @param query query element[s] or a query string.
  * @param context context element or document.
  */
-function $$<T>(query: T, context: Document | Element = document) {
-    const nodes =
-        query instanceof NodeList || query instanceof Array
-            ? query
-            : typeof query === "string"
+function $$(query, context = document) {
+    const nodes = query instanceof NodeList || query instanceof Array
+        ? query
+        : typeof query === "string"
             ? context.querySelectorAll(query)
             : [query];
-
     if (nodes == null) {
         return undefined;
-    } else {
+    }
+    else {
         const arr = Array.from(nodes).map((el) => Object.assign(el, dollarFuncs));
         return Object.assign(arr, foldFunctions(dollarFuncs));
     }
 }
-
-function $<T extends Element>(
-    query: string,
-    context?: Document | Element
-): T & DollarElement;
-
-function $<T extends EventTarget>(
-    query: T,
-    context?: Document | Element
-): T & DollarEventTarget;
-
 /**
  * The dollar 💲in dollar.ts. Wrapper around .querySelector in the case of an input
  * query string, and a simple pipe in the case of anything else (usually of type Element).
@@ -205,14 +130,13 @@ function $<T extends EventTarget>(
  * @param query input query string or element.
  * @param context context element or document.
  */
-function $<T>(query: T, context = document) {
+function $(query, context = document) {
     const node = typeof query === "string" ? context.querySelector(query) : query;
-
     if (node == null) {
         return undefined;
-    } else {
+    }
+    else {
         return Object.assign(node, dollarFuncs);
     }
 }
-
 export { $, $$ };
