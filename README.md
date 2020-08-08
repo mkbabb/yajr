@@ -1,7 +1,5 @@
 # YAJR: `yet another jQuery replacement`
 
-## Quick Example
-
 `dollar.ts`💲 takes this:
 
 ```ts
@@ -52,7 +50,7 @@ Array.from(document.querySelectorAll(".class")).forEach((el) => {
 into this:
 
 ```ts
-$$(".class").css({ height: "100px" });
+$$<HTMLElement>(".class").css({ height: "100px" });
 ```
 
 _The double dollar `$$` syntax will be explained later._
@@ -61,10 +59,10 @@ While also providing the type safety and code completion the former offers throu
 
 ##### Return Type Specialization
 
-The element type returned by `$(".class")` is of type `IDollarElement & Element`. In short, if you want to specialize the type returned by a `$` call, you must `&` it with the type `IDollarElement`. An example ensuring type safety when dealing with an `HTMLCanvas` element:
+The type returned by `$(".class")` is of type `DollarElement & Element`. In short, if you want to specialize the type returned by a `$` call, you must specify the element type. An example ensuring type safety when dealing with an `HTMLCanvas` element:
 
 ```ts
-const canvasEl: HTMLCanvasElement & IDollarElement = $("canvas");
+const canvasEl= $<HTMLCanvasElement>("canvas");
 ...
 ```
 
@@ -74,7 +72,7 @@ To note, this isn't entirely necessary. But if you, like me, want type hinting a
 
 -   💲 Terse query selector syntax of `$("...")` to receive one node, or `$$("...")` to receive multiple.
 
--   💵 `DollarElement`s contains the following function prototypes:
+-   💵 `DollarHTMLElement`s contains the following function prototypes:
 
     -   `on`: suped-up version of `addEventListener` that handles multiple events (separated by a space).
     -   `off`: `removeEventListener` variant of the above.
@@ -89,13 +87,13 @@ To note, this isn't entirely necessary. But if you, like me, want type hinting a
 ### Set the color of an element with the class of `money`:
 
 ```ts
-$(".money").css({ color: "red" });
+$<HTMLElement>(".money").css({ color: "red" });
 ```
 
 ### Set the height of all elements with the class of `dollar` to `50%` and add event listeners:
 
 ```ts
-$$(".dollar").css({ height: "50%" }).on("click mousedown", (ev) => {...});
+$$<HTMLElement>(".dollar").css({ height: "50%" }).on("click mousedown", (ev) => {...});
 ```
 
 ### Add an event listener to the window object for mobile and desktop mouse events:
@@ -106,31 +104,4 @@ _why this is normally so complicated is beyond me_
 $(window).on("click touchstart", (ev) => {...})
 ```
 
-### Using the `setattr` specialization functionality to set the height of an `HTMLCanvasElement`.
 
-First we create a specialized version of `$`:
-
-```ts
-const canvasSpec = {
-    height: (context, value) => {
-        // type checking here is not 100% necessary, but this is TypeScript...
-        if (context instanceof HTMLCanvasElement && typeof value === "string") {
-            context.height = parseFloat(value);
-        }
-    }
-};
-
-const $canvas = (query, context?) => {
-    return $<HTMLCanvasElement>(query, context, canvasSpec);
-};
-```
-
-Notice the type hint we gave in the return statement. The output object will now inherit all types from `HTMLCanvasElement`. neat.
-
-We can then call it like so:
-
-```ts
-$canvas("canvas").setattr({ height: "100" });
-```
-
-And the correct attribute will be set!
