@@ -5,7 +5,6 @@
     },
     "extends": [
         "google",
-        "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
     ],
     "parser": "@typescript-eslint/parser",
@@ -27,6 +26,7 @@
         "object-curly-spacing": "off",
         "space-before-function-paren": "off",
         "operator-linebreak": "off",
-        "max-len": "off"
+        "max-len": "off",
+        "valid-jsdoc": "off"
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "yajr",
   "version": "1.0.0",
-  "description": "Yet another jQuery replacement",
+  "description": "💵 Yet another jQuery replacement...",
   "main": "src/dollar.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,12 +16,13 @@
     "url": "https://github.com/mkbabb/yajr/issues"
   },
   "homepage": "https://github.com/mkbabb/yajr#readme",
-  "dependencies": {
-    "eslint": "^7.5.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
+    "eslint": "^7.5.0",
+    "eslint-config-google": "^0.14.0",
+    "prettier": "^2.0.5",
     "typescript": "^3.9.7"
   }
 }
