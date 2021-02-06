@@ -1,3 +1,5 @@
+import { once } from "./utils";
+
 type NestedAttribute = { [s: string]: string } | string;
 
 interface Attributes {
