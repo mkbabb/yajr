@@ -139,25 +139,43 @@ const foldFunctions = function (funcs) {
 
 // Function decelerations to aid in proper type hinting.
 
-function $$<T extends HTMLElement>(
-    query: string,
+function $<T>(
+    query: T | string,
     context?: Document | Element
-): Array<T & DollarHTMLElement<T>> & DollarHTMLElement<T>;
+): T extends HTMLElement
+    ? T & DollarHTMLElement<T>
+    : T extends Element
+    ? T & DollarElement<T>
+    : T & DollarEventTarget<T>;
 
-function $$<T extends Element>(
-    query: string,
-    context?: Document | Element
-): Array<T & DollarElement<T>> & DollarElement<T>;
+/**
+ * The dollar 💲in dollar.ts. Wrapper around .querySelector in the case of an input
+ * query string, and a simple pipe in the case of anything else (usually of type Element).
+ *
+ * The resultant object is an intersection of T & DollarElement. So if the input object is
+ * of type HTMLElement, that type is preserved and &'d with DollarElement.
+ *
+ * @param query input query string or element.
+ * @param context context element or document.
+ */
+function $<T>(query: T, context = document) {
+    const node = typeof query === "string" ? context.querySelector(query) : query;
 
-function $$<T extends Element>(
-    query: NodeListOf<Element>,
-    context?: Document | Element
-): Array<T & DollarElement<T>> & DollarElement<T>;
+    if (node == null) {
+        return undefined;
+    } else {
+        return Object.assign(node, dollarFuncs);
+    }
+}
 
-function $$<T extends EventTarget>(
-    query: Array<T>,
+function $$<T>(
+    query: string | NodeListOf<Element> | Array<T> | T,
     context?: Document | Element
-): Array<T & DollarEventTarget<T>> & DollarEventTarget<T>;
+): T extends HTMLElement
+    ? Array<T & DollarHTMLElement<T>>
+    : T extends Element
+    ? Array<T & DollarElement<T>>
+    : Array<T & DollarEventTarget<T>>;
 
 /**
  * Like `$`, `$$` is essentially a wrapper for .querySelectorAll, which notoriously returns
@@ -187,41 +205,6 @@ function $$<T>(query: T, context: Document | Element = document) {
     } else {
         const arr = Array.from(nodes).map((el) => Object.assign(el, dollarFuncs));
         return Object.assign(arr, foldFunctions(dollarFuncs));
-    }
-}
-
-function $<T extends HTMLElement>(
-    query: string,
-    context?: Document | Element
-): T & DollarHTMLElement<T>;
-
-function $<T extends Element>(
-    query: string,
-    context?: Document | Element
-): T & DollarElement<T>;
-
-function $<T extends EventTarget>(
-    query: T,
-    context?: Document | Element
-): T & DollarEventTarget<T>;
-
-/**
- * The dollar 💲in dollar.ts. Wrapper around .querySelector in the case of an input
- * query string, and a simple pipe in the case of anything else (usually of type Element).
- *
- * The resultant object is an intersection of T & DollarElement. So if the input object is
- * of type HTMLElement, that type is preserved and &'d with DollarElement.
- *
- * @param query input query string or element.
- * @param context context element or document.
- */
-function $<T>(query: T, context = document) {
-    const node = typeof query === "string" ? context.querySelector(query) : query;
-
-    if (node == null) {
-        return undefined;
-    } else {
-        return Object.assign(node, dollarFuncs);
     }
 }
 
