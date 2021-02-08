@@ -92,6 +92,25 @@ const foldFunctions = function (funcs) {
     return folded;
 };
 /**
+ * The dollar 💲in dollar.ts. Wrapper around .querySelector in the case of an input
+ * query string, and a simple pipe in the case of anything else (usually of type Element).
+ *
+ * The resultant object is an intersection of T & DollarElement. So if the input object is
+ * of type HTMLElement, that type is preserved and &'d with DollarElement.
+ *
+ * @param query input query string or element.
+ * @param context context element or document.
+ */
+function $(query, context = document) {
+    const node = typeof query === "string" ? context.querySelector(query) : query;
+    if (node == null) {
+        return undefined;
+    }
+    else {
+        return Object.assign(node, dollarFuncs);
+    }
+}
+/**
  * Like `$`, `$$` is essentially a wrapper for .querySelectorAll, which notoriously returns
  * a NodeList object.
  *
@@ -118,25 +137,6 @@ function $$(query, context = document) {
     else {
         const arr = Array.from(nodes).map((el) => Object.assign(el, dollarFuncs));
         return Object.assign(arr, foldFunctions(dollarFuncs));
-    }
-}
-/**
- * The dollar 💲in dollar.ts. Wrapper around .querySelector in the case of an input
- * query string, and a simple pipe in the case of anything else (usually of type Element).
- *
- * The resultant object is an intersection of T & DollarElement. So if the input object is
- * of type HTMLElement, that type is preserved and &'d with DollarElement.
- *
- * @param query input query string or element.
- * @param context context element or document.
- */
-function $(query, context = document) {
-    const node = typeof query === "string" ? context.querySelector(query) : query;
-    if (node == null) {
-        return undefined;
-    }
-    else {
-        return Object.assign(node, dollarFuncs);
     }
 }
 export { $, $$ };
